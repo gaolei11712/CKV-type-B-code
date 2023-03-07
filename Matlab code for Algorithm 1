@@ -1,0 +1,31 @@
+function[a0,b0,d0,e0]=CKVTB_set(A)
+[r1,r2,B1,B2]=initial(A);A0=[];B0=[];
+for i=1:length(A)
+  A0=[A0,A(i,i)-r1(i)];B0=[B0,A(i,i)-r2(i)];
+end
+[A0,B0]=union_closed_intervals(A0,B0);
+D0=zeros(1,length(A0));E0=zeros(1,length(B0));
+a0=[];b0=[];d0=[];e0=[];
+for i=1:length(A)
+  [S,Sbar,r1iS,r1iSbar,r1jS,r1jSbar]=parameter(B1,i);
+  [S,Sbar,r2iS,r2iSbar,r2jS,r2jSbar]=parameter(B2,i);
+  k=1;
+  a1=A(i,i)-r1(i)-r1iS(k);b1=A(i,i)-r2(i)+r2iS(k);
+  d1=0;e1=0;
+    for j=1:length(Sbar{k})
+      [a2,b2,d2,e2]=H_ij(A(i,i),A(Sbar{k}(j),Sbar{k}(j)),r1(i),r1(Sbar{k}(j)),r2(i),r2(Sbar{k}(j)),r1iS(k),r1jSbar{k}(j),r1iSbar(k),r1jS{k}(j),r2iS(k),r2jSbar{k}(j),r2iSbar(k),r2jS{k}(j));
+      [a1,b1,d1,e1]=union_tagged_interval_clusters(a1,d1,b1,e1,a2,d2,b2,e2);
+    end
+  for k=2:length(S)
+  a2=A(i,i)-r1(i)-r1iS(k);b2=A(i,i)-r2(i)+r2iS(k);
+  d2=0;e2=0;
+    for j=1:length(Sbar{k})
+      [a3,b3,d3,e3]=H_ij(A(i,i),A(Sbar{k}(j),Sbar{k}(j)),r1(i),r1(Sbar{k}(j)),r2(i),r2(Sbar{k}(j)),r1iS(k),r1jSbar{k}(j),r1iSbar(k),r1jS{k}(j),r2iS(k),r2jSbar{k}(j),r2iSbar(k),r2jS{k}(j));
+      [a2,b2,d2,e2]=union_tagged_interval_clusters(a2,d2,b2,e2,a3,d3,b3,e3);
+    end
+  [a1,b1,d1,e1]=intersection_labeled_interval_clusters(a1,d1,b1,e1,a2,d2,b2,e2);
+end
+[a0,b0,d0,e0]=union_tagged_interval_clusters(a0,d0,b0,e0,a1,d1,b1,e1);
+end
+[a0,b0,d0,e0]=union_tagged_interval_clusters(a0,d0,b0,e0,A0,D0,B0,E0);
+end
