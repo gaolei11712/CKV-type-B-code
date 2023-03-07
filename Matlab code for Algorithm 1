@@ -96,3 +96,119 @@ for i=1:n2
         rjSbar{i}(p)=r(Sbar{i}(p))-rjS{i}(p);
     end
 end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function [a,b,d,e]=union_tagged_interval_clusters(a1,d1,b1,e1,a2,d2,b2,e2)
+for i=1:length(a1);
+    if d1(i)==0;
+       continue
+    else
+        for j=1:length(a2)
+            if  (d2(j)==0&&a2(j)==a1(i))||(e2(j)==0&&b2(j)==a1(i))
+                d1(i)=0;
+            else
+                continue
+            end
+        end
+    end
+end
+for i=1:length(a2);
+    if d2(i)==0;
+       continue
+    else
+        for j=1:length(a1)
+            if  (d1(j)==0&&a1(j)==a2(i))||(e1(j)==0&&b1(j)==a2(i))
+                d2(i)=0;
+            else
+                continue
+            end
+        end
+    end
+end
+for i=1:length(b1);
+    if e1(i)==0;
+       continue
+    else
+        for j=1:length(a2)
+            if  (d2(j)==0&&a2(j)==b1(i))||(e2(j)==0&&b2(j)==b1(i))
+                e1(i)=0;
+            else
+                continue
+            end
+        end
+    end
+end
+for i=1:length(b2);
+    if e2(i)==0;
+       continue
+    else
+        for j=1:length(a1)
+            if  (d1(j)==0&&a1(j)==b2(i))||(e1(j)==0&&b1(j)==b2(i))
+                e2(i)=0;
+            else
+                continue
+            end
+        end
+    end
+end
+a=[a1,a2];b=[b1,b2];d=[d1,d2];e=[e1,e2];
+[a,d0]=sort(a);b=b(d0);d=d(d0);e=e(d0);
+c0=[a(logical(d)),b(logical(e))];
+c0=unique(c0);
+n=length(a);
+for i=2:n
+    if d(i)==0
+         if a(i)>b(i-1)
+            continue
+         else
+            a(i)=a(i-1);
+            b(i-1)=max(b(i-1),b(i));
+            b(i)=b(i-1);
+         end
+    else
+         if a(i)>=b(i-1)
+            continue
+         else
+            a(i)=a(i-1);
+            b(i-1)=max(b(i-1),b(i));
+            b(i)=b(i-1);
+        end
+    end
+end
+for i=2:n
+    if a(i)==a(i-1)
+       c=find(a==a(i));
+       d=max(c);
+       b(i-1)=b(d);
+       b(i)=b(d);
+    else
+       b(i)=b(i);
+    end
+end
+a=unique(a);b=unique(b);
+d=ismember(a,c0);e=ismember(b,c0);
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function[a,b,d,e]=intersection_labeled_interval_clusters(a1,d1,b1,e1,a2,d2,b2,e2)
+c0=[a1(logical(d1)),b1(logical(e1)),a2(logical(d2)),b2(logical(e2))];
+c0=unique(c0);a1=a1';b1=b1';a2=a2';b2=b2';
+s1=[a1,b1];s2=[a2,b2];C=[];
+for i=1:length(a1);
+    for j=1:length(a2)
+    C1=intersection_closed_intervals(s1(i,:),s2(j,:));
+    C=[C,C1];
+    end
+end
+n=length(C);a=C(1:2:n);b=C(2:2:n);
+[a,b]=union_closed_intervals(a,b);
+d1=ismember(a,c0);d2=ismember(b,c0);
+A1=[];B1=[];
+for i=1:length(d1)
+    if a(i)==b(i)&&d1(i)==1
+       A1=[A1,a(i)];B1=[B1,b(i)];
+    else
+       continue
+    end
+end
+   a=setdiff(a,A1);b=setdiff(b,B1);
+   d=ismember(a,c0);e=ismember(b,c0);
+end
