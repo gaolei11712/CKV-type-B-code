@@ -396,11 +396,7 @@ for i=1:length(B)
 end
 S=[{k},B];
 end
-\end{lstlisting}
-\end{small}
-
-\begin{small}
-\begin{lstlisting}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function[a,b]=union_closed_intervals(a,b)
 [a,d]=sort(a);b=b(d);n=length(a);
 for i=2:n
