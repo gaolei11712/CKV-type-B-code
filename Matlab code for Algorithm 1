@@ -56,3 +56,43 @@ end
  d=ismember(a,c0);e=ismember(b,c0);
 end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function[r1,r2,B1,B2]=initial(A)
+n=length(A);r1=zeros(1,n);r2=zeros(1,n);
+for i=1:n
+    r1(i)=0;r2(i)=0;
+    for j=1:n
+        if j==i
+            continue
+        else
+        r1(i)=max(r1(i),A(i,j));
+        r2(i)=min(r2(i),A(i,j));
+        end
+    end
+end
+B1=zeros(n);B2=zeros(n);
+for i=1:n
+    B1(i,:)=A(i,:)-r1(i);
+    B2(i,:)=A(i,:)-r2(i);
+end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function[S,Sbar,riS,riSbar,rjS,rjSbar]=parameter(A,k)
+n=length(A);r=sum(abs(A'))-diag(abs(A))';
+a=[1:n];a(k)=[];S=sets(a,k);n1=length(S);Sbar={};
+for i=1:n1
+    Sbar=[Sbar {setdiff(a,S{i})}];
+end
+n2=length(Sbar);riS=zeros(1,n1);riSbar=zeros(1,n1);
+for i=1:n1
+    riSbar(i)=sum(abs(A(k,Sbar{i})));
+    riS(i)=r(k)-sum(abs(A(k,Sbar{i})));
+end
+rjS=cell(1,n2);
+rjSbar=cell(1,n2);
+for i=1:n2
+    rjS{i}=zeros(1,length(Sbar{i}));
+    rjSbar{i}=zeros(1,length(Sbar{i}));
+    for p=1:length(Sbar{i})
+        rjS{i}(p)=sum(abs(A(Sbar{i}(p),S{i})));
+        rjSbar{i}(p)=r(Sbar{i}(p))-rjS{i}(p);
+    end
+end
